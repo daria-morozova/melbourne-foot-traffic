@@ -1,0 +1,24 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Data: keep downloads and the database out of git
+data/*
+!data/.gitkeep
+!data/reference/
+
+*.duckdb
+*.duckdb.wal
+*.db
+
+# Notebooks and secrets
+.ipynb_checkpoints/
+.env
+.streamlit/secrets.toml

@@ -1,0 +1,28 @@
+[project]
+name = "melbourne-foot-traffic"
+version = "0.1.0"
+description = "Day-ahead forecasts and post-COVID analysis of Melbourne CBD foot traffic"
+readme = "README.md"
+authors = [
+    { name = "Daria Morozova", email = "limpokaya@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "duckdb>=1.5.6",
+    "holidays>=0.105",
+    "pandas>=3.0.6",
+    "requests>=2.34.2",
+]
+
+[project.scripts]
+melbourne-foot-traffic = "melbourne_foot_traffic:main"
+
+[build-system]
+requires = ["uv_build>=0.12.21,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.4.0",
+    "pytest>=9.1.1",
+]
