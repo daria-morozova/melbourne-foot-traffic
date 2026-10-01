@@ -28,7 +28,7 @@ sys.path.insert(0, str(ROOT / "src"))  # so the app runs without installing the 
 
 from melbourne_foot_traffic import analysis, config, db, events, forecast, sources  # noqa: E402
 
-REPO = "limpokaya/melbourne-foot-traffic"  # update if the GitHub username changes
+REPO = "daria-morozova/melbourne-foot-traffic"  # update if the GitHub username changes
 DB_URL = f"https://github.com/{REPO}/releases/download/data-latest/foot_traffic.duckdb"
 TRAIN_START = "2024-12-01"
 MELBOURNE = ZoneInfo(config.LOCAL_TZ)

@@ -76,7 +76,7 @@ areas show no such gap. [Full analysis →](notebooks/03_analysis.ipynb)
 Requires [uv](https://docs.astral.sh/uv/) and Git.
 
 ```bash
-git clone https://github.com/limpokaya/melbourne-foot-traffic.git
+git clone https://github.com/daria-morozova/melbourne-foot-traffic.git
 cd melbourne-foot-traffic
 uv sync                                  # install everything
 uv run melbourne-foot-traffic            # build the database (10-20 min the first time)
@@ -86,7 +86,7 @@ uv run streamlit run app/app.py          # open the dashboard
 ```
 
 To skip the first build, download `foot_traffic.duckdb` from the
-[latest data release](https://github.com/limpokaya/melbourne-foot-traffic/releases/tag/data-latest)
+[latest data release](https://github.com/daria-morozova/melbourne-foot-traffic/releases/tag/data-latest)
 into `data/`.
 
 ## Project structure

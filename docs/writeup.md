@@ -109,7 +109,7 @@ Everything is open: the pipeline that collects the data each month, the forecast
 model, and the analysis are on GitHub, with a live dashboard where you can pick any
 sensor and see its history and tomorrow's forecast.
 
-* Code and notebooks: github.com/limpokaya/melbourne-foot-traffic
+* Code and notebooks: https://github.com/daria-morozova/melbourne-foot-traffic
 * Dashboard: https://melbourne-foot-traffic.streamlit.app/
 
 *Data: City of Melbourne Pedestrian Counting System; weather from Open-Meteo.*
