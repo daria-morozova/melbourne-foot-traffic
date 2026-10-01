@@ -54,3 +54,47 @@ def test_score_wape():
     s = forecast.score(df, "pred")
     assert s.loc[0, "MAE"] == 20
     assert s.loc[0, "WAPE"] == pytest.approx(40 / 400)
+
+
+def _tiny_db(days: int = 120):
+    """A database with one sensor whose count on each day equals the day number."""
+    con = duckdb.connect(":memory:")
+    con.execute(db.SCHEMA)
+    start = date(2025, 1, 1)
+    rows = [(4, start + timedelta(days=d), 9, d) for d in range(days)]
+    con.executemany("INSERT INTO counts VALUES (?, ?, ?, ?, 'live')", rows)
+    cal = events.build_calendar(start, start + timedelta(days=days), events.REF_DIR)
+    db.load_calendar(con, cal)
+    db.create_views(con)
+    return con, start
+
+
+def test_features_only_look_back_35_days_or_more():
+    con, start = _tiny_db()
+    target = start + timedelta(days=100)  # count on this day = 100
+    df = forecast.build_dataset(con, str(target), str(target), sensors=[4])
+    row = df.iloc[0]
+    assert row["count"] == 100
+    assert row["lag_35"] == 65  # day 100 - 35
+    assert row["lag_42"] == 58
+    assert row["baseline"] == (65 + 58 + 51 + 44) / 4
+    # nothing newer than 35 days can appear in any past-count feature
+    assert max(row[c] for c in ["lag_35", "lag_42", "baseline"]) <= 100 - 35
+
+
+def test_backtest_never_trains_on_the_test_month():
+    con, start = _tiny_db(days=200)
+    data = forecast.build_dataset(con, str(start), str(start + timedelta(days=199)), sensors=[4])
+    seen = []
+    original = forecast.fit_predict
+
+    def spy(train, test, target="count"):
+        seen.append((train.date.max(), test.date.min()))
+        return pd.Series(0.0, index=test.index)
+
+    forecast.fit_predict = spy
+    try:
+        forecast.rolling_backtest(data, "2025-05-01", "2025-06-30", train_start=str(start))
+    finally:
+        forecast.fit_predict = original
+    assert seen and all(last_train < first_test for last_train, first_test in seen)
