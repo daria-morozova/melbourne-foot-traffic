@@ -20,5 +20,6 @@ before and after 2020.
 
 
 
-\*\*Status:\*\* Phase 0 (setup) complete. Pipeline in progress.
+Phase 0 (setup) complete. Pipeline in progress.
+\*\*Status:\*\*Data gap: hourly counts for Nov 2022 – Sep 2024 are not publicly available. The council's live table keeps a rolling two-year window, and the historic archive ends on 31 Oct 2022.
 
