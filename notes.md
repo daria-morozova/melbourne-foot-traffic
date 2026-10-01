@@ -3,11 +3,24 @@
 ## Direction check (one line per phase)
 
 - Phase 0 (setup): quick and easy, but the GitHub username limit was annoying.
-- Phase 1 (pipeline): enjoyed … / dragged …
-- Phase 2 (explore): enjoyed … / dragged …
-- Phase 3 (forecast): enjoyed … / dragged …
-- Phase 4 (analysis): enjoyed … / dragged …
-- Phase 5 (communicate): enjoyed … / dragged …
+- Phase 1 (pipeline): satisfying to see it rebuild in one command and then run on its own
+  on GitHub, and finding real data problems (the Sep 2010 timestamps, the missing
+  2022–24 data) was interesting. Debugging errors in PowerShell and Git dragged.
+- Phase 2 (explore): liked the charts finally showing what's going on in the city
+  (lockdowns, weekends back, rain and heat effects). Choosing sensors was slower.
+- Phase 3 (forecast): good to beat the baseline by 25% and understand why the honest
+  set-up matters, but a lot of technical detail to take in, and the result felt less
+  useful in practice than the analysis.
+- Phase 4 (analysis): enjoyed this most. The results were valuable and could actually be
+  used in practice: office-district Fridays 36% below 2019, a clear hybrid-work pattern
+  that the council, businesses and planners could act on. It also connects to my
+  sociology background.
+- Phase 5 (communicate): good to see it all come together in the dashboard and README;
+  setting up the deployment and fixing Windows and Git issues dragged.
+
+**Pattern:** I enjoyed the analysis and research side most: framing a question and
+finding results with practical value. That points towards data analyst, data scientist
+(product/insights) or policy/research analyst roles.
 
 ## Results
 
