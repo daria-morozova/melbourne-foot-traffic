@@ -241,6 +241,18 @@ def load_sensors(con: duckdb.DuckDBPyConnection, path: Path) -> int:
     return n
 
 
+# --- Calendar ------------------------------------------------------------------
+
+
+def load_calendar(con: duckdb.DuckDBPyConnection, cal: pd.DataFrame) -> int:
+    """Replace the `calendar` table (one row per day: holidays, terms, events)."""
+    con.register("calendar_df", cal)
+    con.execute("CREATE OR REPLACE TABLE calendar AS SELECT * FROM calendar_df")
+    con.unregister("calendar_df")
+    print(f"  calendar: {len(cal):,} days, {int(cal['is_holiday'].sum())} public holidays")
+    return len(cal)
+
+
 # --- Weather -------------------------------------------------------------------
 
 

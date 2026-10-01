@@ -9,7 +9,7 @@ from __future__ import annotations
 import argparse
 from datetime import date, timedelta
 
-from . import config, db, sources
+from . import config, db, events, sources
 
 
 def run(rebuild: bool = False) -> None:
@@ -47,6 +47,12 @@ def run(rebuild: bool = False) -> None:
         end = date.today() - timedelta(days=config.WEATHER_LAG_DAYS)
         if start <= end:
             db.upsert_weather(con, sources.fetch_weather(start, end))
+
+        # 5. Calendar: holidays, school terms, events (rebuilt every run, ~90 days ahead)
+        print("Building calendar...")
+        db.load_calendar(
+            con, events.build_calendar(date(2009, 1, 1), date.today() + timedelta(days=90))
+        )
 
         db.create_views(con)
         summarise(con)

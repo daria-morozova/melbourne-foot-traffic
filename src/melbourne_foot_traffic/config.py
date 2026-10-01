@@ -39,6 +39,10 @@ WEATHER_LAG_DAYS = 7  # the archive runs a few days behind real time
 
 LOCAL_TZ = "Australia/Melbourne"
 
+# CBD sensors chosen in notebooks/01_explore.ipynb: inside the CBD grid, >= 90% of
+# hours present in 2019 and Oct 2024 - Sep 2026, not moved or changed.
+CBD_SENSORS = [2, 3, 4, 5, 17, 18, 19, 20, 21, 23, 24, 30, 36, 40, 52, 53, 56, 58]
+
 # When updating, re-fetch this many days before the last loaded date,
 # in case the council corrected recent data.
 OVERLAP_DAYS = 14

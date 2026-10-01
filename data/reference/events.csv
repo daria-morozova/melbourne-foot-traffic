@@ -1,0 +1,15 @@
+event,start,end,note
+australian_open,2025-01-12,2025-01-26,Melbourne Park; main draw (en.wikipedia.org/wiki/2025_Australian_Open)
+australian_open,2026-01-18,2026-02-01,Melbourne Park; main draw (en.wikipedia.org/wiki/2026_Australian_Open)
+grand_prix,2025-03-14,2025-03-16,Albert Park; race weekend (en.wikipedia.org/wiki/2025_Australian_Grand_Prix)
+grand_prix,2026-03-06,2026-03-08,Albert Park; race weekend (en.wikipedia.org/wiki/2026_Australian_Grand_Prix)
+moomba,2025-03-07,2025-03-10,Friday to Labour Day Monday (second Monday in March)
+moomba,2026-03-06,2026-03-09,Friday to Labour Day Monday (second Monday in March)
+lunar_new_year,2025-01-29,2025-01-29,Chinatown celebrations; affects sensors 19 and 20 most
+lunar_new_year,2026-02-17,2026-02-17,Chinatown celebrations; affects sensors 19 and 20 most
+afl_grand_final,2024-09-28,2024-09-28,MCG; the Friday before is a public holiday (parade day)
+afl_grand_final,2025-09-27,2025-09-27,MCG; the Friday before is a public holiday (parade day)
+afl_grand_final,2026-09-26,2026-09-26,MCG; the Friday before is a public holiday (parade day)
+new_years_eve,2024-12-31,2024-12-31,City fireworks; evening crowds
+new_years_eve,2025-12-31,2025-12-31,City fireworks; evening crowds
+new_years_eve,2026-12-31,2026-12-31,City fireworks; evening crowds
