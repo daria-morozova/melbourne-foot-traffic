@@ -139,18 +139,37 @@ def build_dataset(
     start: str,
     end: str,
     sensors: list[int] | None = None,
+    future: bool = False,
+    weather: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """One row per sensor-hour with every feature the model may use.
 
     Past-count features only look back 35 days or more (option A).
     Sensor-days that look like faults (zero for every daytime hour) are
     removed, both as targets and as history.
+
+    future=True builds rows for days with no counts yet (e.g. tomorrow), with
+    `count` empty. Pass `weather` (columns date, hour + WEATHER_FEATURES, e.g.
+    from a weather forecast) to use instead of the stored weather.
     """
     sensors = sensors or config.CBD_SENSORS
     ids = ",".join(map(str, sensors))
     lags = sorted(set(BASELINE_LAGS + [YEAR_LAG]))
     assert min(lags) >= MIN_LAG_DAYS
     base_lags = ",".join(map(str, BASELINE_LAGS))
+    if future:
+        target_sql = f"""
+            SELECT s.sensor_id, d.date::DATE AS date, h.hour::TINYINT AS hour, NULL::INTEGER AS count
+            FROM (SELECT unnest([{ids}]) AS sensor_id) s,
+                 (SELECT unnest(range(DATE '{start}', DATE '{end}' + 1, INTERVAL 1 DAY)) AS date) d,
+                 (SELECT unnest(range(24)) AS hour) h"""
+    else:
+        target_sql = f"SELECT * FROM clean WHERE date BETWEEN '{start}' AND '{end}'"
+    if weather is not None:
+        con.register("weather_input", weather)
+        weather_sql = "weather_input"
+    else:
+        weather_sql = "weather"
     df = con.sql(f"""
         WITH faults AS (
             SELECT sensor_id, date FROM counts
@@ -162,7 +181,7 @@ def build_dataset(
             FROM counts c ANTI JOIN faults f USING (sensor_id, date)
             WHERE c.sensor_id IN ({ids})
         ),
-        target AS (SELECT * FROM clean WHERE date BETWEEN '{start}' AND '{end}'),
+        target AS ({target_sql}),
         lagged AS (
             SELECT t.sensor_id, t.date, t.hour, l.lag, p.count AS past
             FROM target t
@@ -192,9 +211,11 @@ def build_dataset(
         FROM target t
         LEFT JOIN lag_features lf USING (sensor_id, date, hour)
         LEFT JOIN cal ON cal.date = t.date
-        LEFT JOIN weather w ON w.date = t.date AND w.hour = t.hour
+        LEFT JOIN {weather_sql} w ON w.date = t.date AND w.hour = t.hour
         ORDER BY t.date, t.sensor_id, t.hour
     """).df()
+    if weather is not None:
+        con.unregister("weather_input")
     df["date"] = pd.to_datetime(df["date"])
     df["sensor_id"] = pd.Categorical(df["sensor_id"], categories=sorted(sensors))
     for c in CALENDAR_FEATURES:
@@ -252,3 +273,50 @@ def rolling_backtest(
         test["train_rows"] = len(train)
         out.append(test)
     return pd.concat(out, ignore_index=True)
+
+
+def fit(train: pd.DataFrame):
+    """Train the final model (direct counts, L1 loss) on all rows of `train`."""
+    import lightgbm as lgb
+
+    model = lgb.LGBMRegressor(objective="l1", **MODEL_PARAMS)
+    model.fit(train[FEATURES], train["count"])
+    return model
+
+
+def predict(model, rows: pd.DataFrame) -> pd.Series:
+    return pd.Series(model.predict(rows[FEATURES]), index=rows.index).clip(lower=0)
+
+
+def weather_for_model(hourly: pd.DataFrame) -> pd.DataFrame:
+    """Raw hourly weather (as from Open-Meteo) -> one row per local date and hour,
+    with the same column names as the `weather` view in the database."""
+    g = hourly.groupby(["date", "hour"], as_index=False)
+    out = g.agg(
+        temperature=("temperature_2m", "mean"),
+        apparent_temperature=("apparent_temperature", "mean"),
+        precipitation_mm=("precipitation", "sum"),
+        rain_mm=("rain", "sum"),
+        humidity=("relative_humidity_2m", "mean"),
+        cloud_cover=("cloud_cover", "mean"),
+        wind_speed=("wind_speed_10m", "mean"),
+    )
+    out["date"] = pd.to_datetime(out["date"]).dt.date
+    return out
+
+
+def typical_weather(con: duckdb.DuckDBPyConnection, dates: list) -> pd.DataFrame:
+    """Fallback when no forecast is available: the average weather for the same
+    days of the year (+/- 3 days) and hour over all stored years."""
+    rows = []
+    for d in dates:
+        doy = pd.Timestamp(d).dayofyear
+        w = con.sql(f"""
+            SELECT hour, {", ".join(f"avg({c}) AS {c}" for c in WEATHER_FEATURES)}
+            FROM weather
+            WHERE abs(dayofyear(date) - {doy}) <= 3
+            GROUP BY hour
+        """).df()
+        w.insert(0, "date", pd.Timestamp(d).date())
+        rows.append(w)
+    return pd.concat(rows, ignore_index=True)

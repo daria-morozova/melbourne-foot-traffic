@@ -173,3 +173,24 @@ def fetch_weather(start: date, end: date) -> pd.DataFrame:
         year_start = year_end + timedelta(days=1)
         time.sleep(1)  # be polite to a free service
     return pd.concat(frames, ignore_index=True)
+
+
+WEATHER_FORECAST_API = "https://api.open-meteo.com/v1/forecast"
+
+
+def fetch_weather_forecast(days: int = 3) -> pd.DataFrame:
+    """Hourly CBD weather forecast for the next few days (same columns as fetch_weather)."""
+    r = SESSION.get(
+        WEATHER_FORECAST_API,
+        params={
+            "latitude": config.CBD_LAT,
+            "longitude": config.CBD_LON,
+            "hourly": ",".join(config.WEATHER_VARS),
+            "timezone": "GMT",
+            "forecast_days": days,
+        },
+        timeout=WEATHER_TIMEOUT,
+    )
+    if r.status_code != 200:
+        raise RuntimeError(f"Open-Meteo forecast error {r.status_code}: {r.text[:500]}")
+    return weather_json_to_frame(r.json())

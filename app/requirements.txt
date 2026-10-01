@@ -1,0 +1,13 @@
+# Packages for Streamlit Community Cloud (it reads this file next to app.py).
+# Locally, use `uv sync` instead, which reads pyproject.toml.
+streamlit>=1.40
+plotly>=5.20
+duckdb>=1.5
+pandas>=3.0
+numpy
+requests
+holidays>=0.105
+lightgbm>=4.5
+scikit-learn
+statsmodels>=0.14
+scipy

@@ -98,3 +98,15 @@ def test_backtest_never_trains_on_the_test_month():
     finally:
         forecast.fit_predict = original
     assert seen and all(last_train < first_test for last_train, first_test in seen)
+
+
+def test_future_rows_have_no_count_but_have_features():
+    con, start = _tiny_db(days=120)
+    future_day = start + timedelta(days=130)  # after the last count
+    wx = pd.DataFrame({"date": [future_day] * 24, "hour": range(24),
+                       **{c: 1.0 for c in forecast.WEATHER_FEATURES}})
+    df = forecast.build_dataset(con, str(future_day), str(future_day), sensors=[4], future=True, weather=wx)
+    assert len(df) == 24 and df["count"].isna().all()
+    row = df[df.hour == 9].iloc[0]
+    assert row["lag_35"] == 95  # day 130 - 35
+    assert row["temperature"] == 1.0  # came from the supplied weather
