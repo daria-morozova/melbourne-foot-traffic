@@ -1,0 +1,44 @@
+# Monthly data update.
+# The database is too big for git, so it lives as a file attached to a
+# GitHub Release called "data-latest". Each run downloads the previous
+# database, fetches only what's new, and uploads it back.
+
+name: Update data
+
+on:
+  schedule:
+    - cron: "0 20 5 * *"   # 20:00 UTC on the 5th = early morning on the 6th in Melbourne
+  workflow_dispatch:        # adds a "Run workflow" button on the Actions tab
+
+permissions:
+  contents: write           # needed to upload the database to the release
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Download previous database (if any)
+        run: |
+          mkdir -p data
+          gh release download data-latest --pattern foot_traffic.duckdb --dir data \
+            || echo "No previous database found, building from scratch"
+
+      - name: Update database
+        run: uv run melbourne-foot-traffic
+
+      - name: Upload database to the data-latest release
+        run: |
+          gh release view data-latest >/dev/null 2>&1 \
+            || gh release create data-latest --title "Latest data" \
+                 --notes "Database updated automatically by the monthly workflow."
+          gh release upload data-latest data/foot_traffic.duckdb --clobber
