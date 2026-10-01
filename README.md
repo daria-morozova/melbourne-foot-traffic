@@ -6,7 +6,7 @@ An end-to-end project on 17 years of hourly City of Melbourne pedestrian counts:
 an automated data pipeline, a day-ahead forecast, and an analysis of how hybrid
 work has reshaped the city's working week.
 
-**Live dashboard:** _add your Streamlit link here_
+**Live dashboard:** https://melbourne-foot-traffic.streamlit.app/
 
 ## Key finding
 

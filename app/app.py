@@ -13,6 +13,7 @@ import shutil
 import sys
 import tempfile
 import urllib.request
+import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -47,7 +48,15 @@ st.set_page_config(page_title="Melbourne CBD foot traffic", page_icon="🚶", la
 @st.cache_resource(ttl=timedelta(hours=24), show_spinner="Loading the database…")
 def get_connection() -> duckdb.DuckDBPyConnection:
     """Open a private copy of the database, adding the calendar table if it's missing."""
-    path = Path(tempfile.gettempdir()) / "foot_traffic_app.duckdb"
+    # A fresh file name each time: on Windows an older copy may still be open
+    # (and locked) by the previous cache entry, so it can't be overwritten.
+    tmp = Path(tempfile.gettempdir())
+    for old in tmp.glob("foot_traffic_app_*"):
+        try:
+            old.unlink()  # tidy up earlier copies; skip any still in use
+        except OSError:
+            pass
+    path = tmp / f"foot_traffic_app_{uuid.uuid4().hex[:8]}.duckdb"
     if config.DB_PATH.exists():
         shutil.copy(config.DB_PATH, path)
     else:

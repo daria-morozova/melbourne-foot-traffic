@@ -41,14 +41,14 @@ qualified, and there was a clear break in the numbers between the two groups.
 
 Split this way, the pattern is stark:
 
-| Office district | Recent traffic as % of 2019 |
-|---|---|
-| Monday | 65% |
-| Tuesday | 72% |
-| Wednesday | 71% |
-| Thursday | 74% |
-| **Friday** | **64%** |
-| Saturday / Sunday | 100–101% |
+|Office district|Recent traffic as % of 2019|
+|-|-|
+|Monday|65%|
+|Tuesday|72%|
+|Wednesday|71%|
+|Thursday|74%|
+|**Friday**|**64%**|
+|Saturday / Sunday|100–101%|
 
 **Friday is still 36% below 2019 in the office district, while Wednesday is 29%
 below.** Monday is almost as low as Friday. Shopping and leisure areas show a gentler
@@ -59,9 +59,9 @@ pattern, with Friday their *best*-recovered weekday at 85%.
 If this is hybrid work, the gap should show up when people travel to work and fade
 when they don't. That's exactly what the data shows.
 
-- **7–10am:** office-district Mondays and Fridays are 17% further below 2019 than
-  Tuesday to Thursday (95% interval: 15–19%).
-- **After 7pm:** the difference all but disappears.
+* **7–10am:** office-district Mondays and Fridays are 17% further below 2019 than
+Tuesday to Thursday (95% interval: 15–19%).
+* **After 7pm:** the difference all but disappears.
 
 People still come into the city on Friday evenings; they just don't come in on Friday
 mornings. The gap appears at 17 of the 18 sensors, so it isn't driven by one unusual
@@ -94,14 +94,14 @@ back, and Friday evenings are healthy.
 
 ## Caveats
 
-- The sensors count **people walking past**, not office workers or unique visitors.
-- Some sensors were upgraded in 2023. Upgraded and non-upgraded sensors show the same
-  gap, so the hardware change doesn't explain it, but it can't rule out every change.
-- The council hasn't published counts for November 2022 to September 2024, so I
-  can't say exactly *when* this pattern settled.
-- A lot else has changed since 2019, including shops, transport and population. The
-  data shows a pattern that fits hybrid work very well; it can't prove that hybrid
-  work is the only cause.
+* The sensors count **people walking past**, not office workers or unique visitors.
+* Some sensors were upgraded in 2023. Upgraded and non-upgraded sensors show the same
+gap, so the hardware change doesn't explain it, but it can't rule out every change.
+* The council hasn't published counts for November 2022 to September 2024, so I
+can't say exactly *when* this pattern settled.
+* A lot else has changed since 2019, including shops, transport and population. The
+data shows a pattern that fits hybrid work very well; it can't prove that hybrid
+work is the only cause.
 
 ## How I did it
 
@@ -109,7 +109,9 @@ Everything is open: the pipeline that collects the data each month, the forecast
 model, and the analysis are on GitHub, with a live dashboard where you can pick any
 sensor and see its history and tomorrow's forecast.
 
-- Code and notebooks: github.com/limpokaya/melbourne-foot-traffic
-- Dashboard: *add link*
+* Code and notebooks: github.com/limpokaya/melbourne-foot-traffic
+
+Dashboard: *notepad docs\\writeup.md*
 
 *Data: City of Melbourne Pedestrian Counting System; weather from Open-Meteo.*
+
