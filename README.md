@@ -1,5 +1,7 @@
 # Melbourne CBD Foot Traffic
 
+By **Daria Morozova** · Master of Data Science, University of Melbourne
+
 **What drives foot traffic in Melbourne's CBD, and can it be predicted a day ahead?**
 
 An end-to-end project on 17 years of hourly City of Melbourne pedestrian counts:
