@@ -6,23 +6,53 @@ Every function here only fetches and saves; cleaning happens in db.py.
 from __future__ import annotations
 
 import shutil
+import time
 import zipfile
 from datetime import date, timedelta
 from pathlib import Path
 
 import pandas as pd
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from . import config
 
-TIMEOUT = 300  # seconds; the big exports can take a while to start
+# (connect, read) timeouts in seconds. Council exports can take minutes to
+# start streaming; Open-Meteo normally answers in a second or two.
+EXPORT_TIMEOUT = (30, 300)
+WEATHER_TIMEOUT = (30, 90)
+
+
+def _make_session() -> requests.Session:
+    """A session that retries dropped connections and busy servers.
+
+    Waits 2s, 4s, 8s, 16s, 32s between attempts, so a brief network hiccup
+    or a '429 Too Many Requests' doesn't kill a whole run.
+    """
+    retry = Retry(
+        total=5,
+        connect=5,
+        read=5,
+        backoff_factor=2,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"],
+        respect_retry_after_header=True,
+    )
+    session = requests.Session()
+    session.mount("https://", HTTPAdapter(max_retries=retry))
+    session.headers["User-Agent"] = "melbourne-foot-traffic (portfolio project)"
+    return session
+
+
+SESSION = _make_session()
 
 
 def _download(url: str, dest: Path, params: dict | None = None) -> Path:
     """Stream a URL to a file, so large exports never sit in memory."""
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(dest.suffix + ".part")
-    with requests.get(url, params=params, stream=True, timeout=TIMEOUT) as r:
+    with SESSION.get(url, params=params, stream=True, timeout=EXPORT_TIMEOUT) as r:
         if r.status_code != 200:
             raise RuntimeError(
                 f"Download failed ({r.status_code}) for {r.url}\n{r.text[:500]}"
@@ -125,7 +155,7 @@ def fetch_weather(start: date, end: date) -> pd.DataFrame:
     while year_start <= end:
         year_end = min(date(year_start.year, 12, 31), end)
         print(f"Fetching weather {year_start} to {year_end}...")
-        r = requests.get(
+        r = SESSION.get(
             config.WEATHER_API,
             params={
                 "latitude": config.CBD_LAT,
@@ -135,10 +165,11 @@ def fetch_weather(start: date, end: date) -> pd.DataFrame:
                 "hourly": ",".join(config.WEATHER_VARS),
                 "timezone": "GMT",  # fetch in UTC, convert ourselves (DST-safe)
             },
-            timeout=TIMEOUT,
+            timeout=WEATHER_TIMEOUT,
         )
         if r.status_code != 200:
             raise RuntimeError(f"Open-Meteo error {r.status_code}: {r.text[:500]}")
         frames.append(weather_json_to_frame(r.json()))
         year_start = year_end + timedelta(days=1)
+        time.sleep(1)  # be polite to a free service
     return pd.concat(frames, ignore_index=True)
