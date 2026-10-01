@@ -33,7 +33,10 @@ TRAIN_START = "2024-12-01"
 MELBOURNE = ZoneInfo(config.LOCAL_TZ)
 
 BLUE, ORANGE, AQUA = "#2a78d6", "#eb6834", "#1baf7a"
-INK2, MUTED, GRID = "#52514e", "#898781", "#e1e0d9"
+# Neutral colours with transparency, so charts read well in both light and dark mode
+MUTED = "#898781"
+GRID = "rgba(137, 135, 129, 0.25)"
+SHADE = "rgba(137, 135, 129, 0.15)"
 
 st.set_page_config(page_title="Melbourne CBD foot traffic", page_icon="🚶", layout="wide")
 
@@ -119,7 +122,7 @@ def style(fig: go.Figure, height: int = 360) -> go.Figure:
     fig.update_layout(
         height=height, margin=dict(l=10, r=10, t=30, b=10),
         plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
-        font=dict(color=INK2), hovermode="x unified",
+        hovermode="x unified",
         legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0),
     )
     fig.update_xaxes(showgrid=False, linecolor=GRID)
@@ -179,11 +182,16 @@ hist = daily_history(sensor_id)
 fig = go.Figure()
 fig.add_scatter(x=hist.index, y=hist.people, line=dict(color=BLUE, width=1.5),
                 name="Weekly average of daily totals", hovertemplate="%{y:,.0f}")
-fig.add_vrect(x0="2020-03-30", x1="2021-10-22", fillcolor=GRID, opacity=0.5, line_width=0,
-              annotation_text="lockdowns", annotation_position="top left")
+fig.add_vrect(x0="2020-03-30", x1="2021-10-22", fillcolor=SHADE, line_width=0,
+              annotation_text="lockdowns", annotation_position="top left",
+              annotation_font_color=MUTED)
 fig.update_yaxes(title="People per day")
 st.plotly_chart(style(fig, 320), width="stretch")
-st.caption("Gaps: Sep 2010 (faulty timestamps), Nov 2022 – Sep 2024 (not published by the council).")
+st.caption(
+    "Weekly average of daily totals. Gaps: Nov 2022 – Sep 2024 (not published by the council), "
+    "Sep 2010 (faulty timestamps), plus any periods when this sensor was offline. "
+    "The spikes each December are Christmas shopping."
+)
 
 # --- The finding
 st.subheader("Has the CBD recovered?")
