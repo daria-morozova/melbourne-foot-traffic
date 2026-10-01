@@ -110,8 +110,7 @@ model, and the analysis are on GitHub, with a live dashboard where you can pick 
 sensor and see its history and tomorrow's forecast.
 
 * Code and notebooks: github.com/limpokaya/melbourne-foot-traffic
-
-Dashboard: *notepad docs\\writeup.md*
+* Dashboard: https://melbourne-foot-traffic.streamlit.app/
 
 *Data: City of Melbourne Pedestrian Counting System; weather from Open-Meteo.*
 
